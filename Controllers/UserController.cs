@@ -61,7 +61,15 @@ namespace AuthenticationWebApi.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             userWithToken.AccessToken = tokenHandler.WriteToken(token);
 
+            var us = new CurrentUsers()
+            { 
+                Id = userWithToken.Id,
+                Token = userWithToken.AccessToken
+            };
 
+            var l = new LoginedUser();
+            l.Add(us);
+            //CurrentUsers.currentUsers.Add(userWithToken);
             return Ok(userWithToken);
         }
 
@@ -94,5 +102,19 @@ namespace AuthenticationWebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
+        [HttpGet]
+        [Route("currentUsers")]
+        public ActionResult<IEnumerable<CurrentUsers>> GetAllCurrentUsers()
+        {
+            var l = new LoginedUser();
+            var result = l.GetAll();
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
     }
 }
