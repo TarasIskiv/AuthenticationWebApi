@@ -38,6 +38,8 @@ namespace AuthenticationWebApi.Controllers
         {
             user = _context.Users.Where(x => x.Login == user.Login && x.Password == x.Password).FirstOrDefault();
 
+            if (user == null) return NotFound();
+            
             UserWithToken userWithToken = new(user);
 
             if (userWithToken == null)
@@ -84,7 +86,7 @@ namespace AuthenticationWebApi.Controllers
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            return Ok("Go to \"api/Login\" to get your token");
+            return Ok("Go to \"api/User/login\" to get your token");
         }
 
 
@@ -102,11 +104,12 @@ namespace AuthenticationWebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [Route("currentUsers")]
-        public ActionResult<IEnumerable<CurrentUsers>> GetAllCurrentUsers()
+        public ActionResult<IEnumerable<CurrentUsers>> GetAllCurrentUsers([FromHeader]string auth)
         {
+            Console.WriteLine(auth);
             var l = new LoginedUser();
             var result = l.GetAll();
             if (result == null)
